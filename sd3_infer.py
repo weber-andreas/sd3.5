@@ -9,24 +9,24 @@
 import datetime
 import math
 import os
-import pickle
 import re
 
 import fire
 import numpy as np
-import sd3_impls
 import torch
-from other_impls import SD3Tokenizer, SDClipModel, SDXLClipG, T5XXLModel
 from PIL import Image
 from safetensors import safe_open
-from sd3_impls import (
+from tqdm import tqdm
+
+from . import sd3_impls
+from .other_impls import SD3Tokenizer, SDClipModel, SDXLClipG, T5XXLModel
+from .sd3_impls import (
     SDVAE,
     BaseModel,
     CFGDenoiser,
     SD3LatentFormat,
     SkipLayerCFGDenoiser,
 )
-from tqdm import tqdm
 
 #################################################################################################
 ### Wrappers for model parts
@@ -231,9 +231,9 @@ SEED = 23
 SEEDTYPE = "rand"
 # SEEDTYPE = "roll"
 # Actual model file path
-# MODEL = "models/sd3_medium.safetensors"
+MODEL = "models/sd3_medium.safetensors"
 # MODEL = "models/sd3.5_large_turbo.safetensors"
-MODEL = "models/sd3-large/sd3.5_large.safetensors"
+# MODEL = "models/sd3-large/sd3.5_large.safetensors"
 # VAE model file path, or set None to use the same model file
 VAEFile = None  # "models/sd3_vae.safetensors"
 # Optional init image file path

@@ -4,16 +4,12 @@ import math
 import re
 
 import einops
-from safetensors import safe_open
 import torch
 from PIL import Image
 from tqdm import tqdm
-import numpy as np
-import torch.nn as nn
 
-from dit_embedder import ControlNetEmbedder
-from mmditx import MMDiTX
-from typing import Tuple
+from .dit_embedder import ControlNetEmbedder
+from .mmditx import MMDiTX
 
 #################################################################################################
 ### MMDiT Model Wrapping
@@ -133,7 +129,9 @@ class BaseModel(torch.nn.Module):
             hidden_size = 64 * depth
             num_heads = depth
             head_dim = hidden_size // num_heads
-            pooled_projection_size = control_model_ckpt.get_tensor('time_text_embed.text_embedder.linear_1.weight').shape[1]
+            pooled_projection_size = control_model_ckpt.get_tensor(
+                "time_text_embed.text_embedder.linear_1.weight"
+            ).shape[1]
             if verbose:
                 print(
                     f"Initializing ControlNetEmbedder with {n_controlnet_layers} layers, y_in of {pooled_projection_size}"
@@ -150,7 +148,9 @@ class BaseModel(torch.nn.Module):
                 dtype=dtype,
             )
 
-    def apply_model(self, x, sigma, c_crossattn=None, y=None, skip_layers=[], controlnet_cond=None):
+    def apply_model(
+        self, x, sigma, c_crossattn=None, y=None, skip_layers=[], controlnet_cond=None
+    ):
         dtype = self.get_dtype()
         timestep = self.model_sampling.timestep(sigma).float()
         controlnet_hidden_states = None
@@ -161,11 +161,13 @@ class BaseModel(torch.nn.Module):
 
             if not self.control_model.using_8b_controlnet:
                 y_cond = self.diffusion_model.y_embedder(y)
-            
+
             x_controlnet = x
             if self.control_model.using_8b_controlnet:
                 hw = x.shape[-2:]
-                x_controlnet = self.diffusion_model.x_embedder(x) + self.diffusion_model.cropped_pos_embed(hw)
+                x_controlnet = self.diffusion_model.x_embedder(
+                    x
+                ) + self.diffusion_model.cropped_pos_embed(hw)
             controlnet_hidden_states = self.control_model(
                 x_controlnet, controlnet_cond, y_cond, 1, sigma.to(torch.float32)
             )
@@ -740,4 +742,3 @@ class SDVAE(torch.nn.Module):
         logvar = torch.clamp(logvar, -30.0, 20.0)
         std = torch.exp(0.5 * logvar)
         return mean + std * torch.randn_like(mean)
-

@@ -1,13 +1,11 @@
-import math
 from typing import List, Optional, Tuple
 
-import numpy as np
 import torch
 import torch.nn as nn
-from einops import rearrange
 from torch import Tensor
 
-from mmditx import DismantledBlock, PatchEmbed, VectorEmbedder, TimestepEmbedder
+from .mmditx import DismantledBlock, PatchEmbed, TimestepEmbedder, VectorEmbedder
+
 
 class ControlNetEmbedder(nn.Module):
 
@@ -46,14 +44,20 @@ class ControlNetEmbedder(nn.Module):
 
         self.transformer_blocks = nn.ModuleList(
             DismantledBlock(
-                hidden_size=self.hidden_size, num_heads=num_attention_heads, qkv_bias=True, device=device, dtype=dtype
+                hidden_size=self.hidden_size,
+                num_heads=num_attention_heads,
+                qkv_bias=True,
+                device=device,
+                dtype=dtype,
             )
             for _ in range(num_layers)
         )
 
         self.controlnet_blocks = nn.ModuleList([])
         for _ in range(len(self.transformer_blocks)):
-            controlnet_block = nn.Linear(self.hidden_size, self.hidden_size, device=device, dtype=dtype)
+            controlnet_block = nn.Linear(
+                self.hidden_size, self.hidden_size, device=device, dtype=dtype
+            )
             self.controlnet_blocks.append(controlnet_block)
 
         self.pos_embed_input = PatchEmbed(
@@ -63,7 +67,7 @@ class ControlNetEmbedder(nn.Module):
             embed_dim=self.hidden_size,
             strict_img_size=False,
             dtype=dtype,
-            device=device
+            device=device,
         )
         self.using_8b_controlnet: bool = False
 
@@ -95,9 +99,7 @@ class ControlNetEmbedder(nn.Module):
             block_out += (out,)
 
         x_out = ()
-        for out, controlnet_block in zip(
-            block_out, self.controlnet_blocks
-        ):
+        for out, controlnet_block in zip(block_out, self.controlnet_blocks):
             out = controlnet_block(out)
             x_out = x_out + (out,)
 

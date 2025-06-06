@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 from einops import rearrange, repeat
 
-from other_impls import Mlp, attention
+from .other_impls import Mlp, attention
 
 
 class PatchEmbed(nn.Module):
@@ -908,7 +908,9 @@ class MMDiTX(nn.Module):
 
         context = self.context_embedder(context)
 
-        x = self.forward_core_with_concat(x, c, context, skip_layers, controlnet_hidden_states)
+        x = self.forward_core_with_concat(
+            x, c, context, skip_layers, controlnet_hidden_states
+        )
 
         x = self.unpatchify(x, hw=hw)  # (N, out_channels, H, W)
         return x
