@@ -214,7 +214,7 @@ class CFGDenoiser(torch.nn.Module):
         )
         # Then split and apply CFG Scaling
         pos_out, neg_out = batched.chunk(2)
-        scaled = neg_out + (pos_out - neg_out) * cond_scale
+        scaled = neg_out + (pos_out - neg_out) * 2.5  # cond_scale
         return scaled
 
 
