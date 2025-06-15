@@ -477,6 +477,7 @@ class SD3Inferencer:
             )
         neg_cond = self.get_cond("")
         seed_num = None
+        images = []
         pbar = tqdm(enumerate(prompts), total=len(prompts), position=0, leave=True)
         for i, prompt in pbar:
             if seed_type == "roll":
@@ -502,7 +503,10 @@ class SD3Inferencer:
             save_path = os.path.join(out_dir, f"{i:06d}.png")
             self.print(f"Saving to to {save_path}")
             image.save(save_path)
+            images.append(image)
             self.print("Done")
+
+        return images
 
 
 CONFIGS = {
