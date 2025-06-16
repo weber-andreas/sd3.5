@@ -460,7 +460,7 @@ class SD3Inferencer:
         init_image=INIT_IMAGE,
         denoise=DENOISE,
         skip_layer_config={},
-    ):
+    ) -> list[Image.Image]:
         controlnet_cond = None
         if init_image:
             latent = self._image_to_latent(init_image, width, height)
